@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout 
+    xmlns:app="http://schemas.android.com/apk/res/android"
+    app:id="@+id/main_content"
+    app:layout_width="match_parent"
+    app:layout_height="match_parent"
+    app:orientation="vertical">
+
+    <android.support.design.widget.TabLayout
+        app:id="@+id/tabs"
+        app:layout_width="match_parent"
+        app:layout_height="wrap_content"
+        app:tabGravity="0"
+        app:tabMode="1" />
+
+    <android.support.v4.view.ViewPager
+        app:id="@+id/viewpager"
+        app:layout_width="match_parent"
+        app:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+</LinearLayout>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:app="http://schemas.android.com/apk/res/android"
+    app:layout_width="match_parent"
+    app:layout_height="match_parent"
+    app:orientation="vertical">
+
+    <android.support.design.widget.AppBarLayout
+        app:layout_width="match_parent"
+        app:layout_height="wrap_content"
+        app:theme="@style/AppTheme_AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+            app:id="@+id/toolbar_all_distance_travelled"
+            app:layout_width="match_parent"
+            app:layout_height="wrap_content"
+            app:background="@color/colorPrimary"
+            app:popupTheme="@style/AppTheme_PopupOverlay" />
+    </android.support.design.widget.AppBarLayout>
+
+    <LinearLayout
+        app:layout_width="match_parent"
+        app:layout_height="wrap_content"
+        app:orientation="horizontal">
+
+        <TextView
+            app:id="@+id/distance"
+            app:layout_width="0dp"
+            app:layout_height="wrap_content"
+            app:layout_marginLeft="20dp"
+            app:layout_weight="1.0"
+            app:padding="10dp"
+            app:text="Distance"
+            app:textColor="#000"
+            app:textSize="17sp"
+            app:textStyle="bold" />
+
+        <TextView
+            app:id="@+id/date"
+            app:layout_width="0dp"
+            app:layout_height="wrap_content"
+            app:layout_marginLeft="30dp"
+            app:layout_weight="1.0"
+            app:padding="10dp"
+            app:text="Date"
+            app:textColor="#000"
+            app:textSize="17sp"
+            app:textStyle="bold" />
+
+        <TextView
+            app:id="@id/time"
+            app:layout_width="0dp"
+            app:layout_height="wrap_content"
+            app:layout_marginLeft="30dp"
+            app:layout_weight="1.0"
+            app:padding="10dp"
+            app:text="Time"
+            app:textColor="#000"
+            app:textSize="17sp"
+            app:textStyle="bold" />
+    </LinearLayout>
+
+    <ListView
+        app:id="@+id/distanceList"
+        app:layout_width="match_parent"
+        app:layout_height="wrap_content"
+        app:layout_alignParentLeft="true"
+        app:layout_below="@id/distance" />
+</LinearLayout>
