@@ -1,58 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.ran.capturewalk.capturewalk">
-
-    <uses-sdk
-        android:minSdkVersion="15"
-        android:targetSdkVersion="21" />
-
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.INTERNET" />
-
-    <!--<uses-feature-->
-        <!--android:glEsVersion="20000"-->
-        <!--android:required="true" />-->
-
-    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    package="com.payapp.uttrakhandtransportcorporation">
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.ran.capturewalk.capturewalk.SplashActivity"
+            android:name=".FillDetailsActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme_NoActionBar">
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name="com.ran.capturewalk.capturewalk.MainActivity"
-            android:label="@string/title_activity_main"
-            android:parentActivityName="com.ran.capturewalk.capturewalk.SplashActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme_NoActionBar">
+            android:name=".ResultActivity"
+            android:parentActivityName=".FillDetailsActivity"
+            android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.ran.capturewalk.capturewalk.SplashActivity" />
+                android:value="com.payapp.uttrakhandtransportcorporation.FillDetailsActivity" />
         </activity>
-        <activity
-            android:name="com.ran.capturewalk.capturewalk.AllDistancesTravelled"
-            android:parentActivityName="com.ran.capturewalk.capturewalk.MainActivity"
-            android:theme="@style/AppTheme_NoActionBar" />
-
-        <meta-data
-            android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version" />
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="@string/api_key_google_maps" />
-
     </application>
+
 </manifest>

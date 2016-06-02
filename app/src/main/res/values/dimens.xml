@@ -3,7 +3,16 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
-    <dimen name="nav_header_height">160.0dip</dimen>
-    <dimen name="nav_header_vertical_spacing">16.0dip</dimen>
+    <dimen name="dimen_header_text_size">17sp</dimen>
+    <dimen name="dimen_hint_text_size">15sp</dimen>
+    <dimen name="dimen_button_text_size">17sp</dimen>
+    <dimen name="dimen_button_left_margin">30dp</dimen>
+    <dimen name="dimen_button_right_margin">30dp</dimen>
+    <dimen name="dimen_button_top_margin">50dp</dimen>
+    <dimen name="toolbar_title_text_size">15sp</dimen>
+    <dimen name="toolbar_subtitle_text_size">10sp</dimen>
+    <dimen name="toolbar_layout_padding_left">10dp</dimen>
+    <dimen name="result_imageview_height">120dp</dimen>
+    <dimen name="result_imageview_width">120dp</dimen>
 
 </resources>

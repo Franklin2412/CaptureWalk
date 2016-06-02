@@ -1,23 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.DrawerLayout xmlns:app="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:app="http://schemas.android.com/apk/res/android"
-    app:id="@+id/drawer_layout"
-    app:layout_width="match_parent"
-    app:layout_height="match_parent"
-    app:fitsSystemWindows="true">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical"
+    tools:context="com.payapp.uttrakhandtransportcorporation.MainActivity">
 
-    <include
-        layout="@layout/app_bar_main"
-        app:layout_width="match_parent"
-        app:layout_height="wrap_content" />
+    <include layout="@layout/layout_toolbar" />
 
-    <android.support.design.widget.NavigationView
-        app:id="@+id/nav_view"
-        app:layout_width="wrap_content"
-        app:layout_height="wrap_content"
-        app:layout_gravity="center_horizontal"
-        app:fitsSystemWindows="true"
-        app:headerLayout="@layout/nav_header_main"
-        app:menu="@menu/activity_main_drawer" />
-</android.support.v4.widget.DrawerLayout>
+    <include layout="@layout/content_main" />
+
+</android.support.design.widget.CoordinatorLayout>
