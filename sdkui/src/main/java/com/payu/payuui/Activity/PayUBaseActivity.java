@@ -72,15 +72,11 @@ public class PayUBaseActivity extends FragmentActivity implements  PaymentRelate
 
     private Boolean smsPermission;
 
-
     private PostData mPostData;
 
     HashMap<String, String> oneClickCardTokens;
 
     private int storeOneClickHash;
-
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,7 +112,6 @@ public class PayUBaseActivity extends FragmentActivity implements  PaymentRelate
         merchantWebService.setKey(mPaymentParams.getKey());
         merchantWebService.setCommand(PayuConstants.PAYMENT_RELATED_DETAILS_FOR_MOBILE_SDK);
         merchantWebService.setVar1(mPaymentParams.getUserCredentials() == null ? "default" : mPaymentParams.getUserCredentials());
-
 
         merchantWebService.setHash(mPayUHashes.getPaymentRelatedDetailsForMobileSdkHash());
 
@@ -207,7 +202,7 @@ public class PayUBaseActivity extends FragmentActivity implements  PaymentRelate
     private void setupViewPagerAdapter(final PayuResponse payuResponse, PayuResponse valueAddedResponse) {
 
         if (payuResponse.isResponseAvailable() && payuResponse.getResponseStatus().getCode() == PayuErrors.NO_ERROR) { // ok we are good to go
-            Toast.makeText(this, payuResponse.getResponseStatus().getResult(), Toast.LENGTH_LONG).show();
+           // Toast.makeText(this, payuResponse.getResponseStatus().getResult(), Toast.LENGTH_LONG).show();
 
             if (payuResponse.isStoredCardsAvailable()) {
                 paymentOptionsList.add(SdkUIConstants.SAVED_CARDS);

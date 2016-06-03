@@ -1,5 +1,9 @@
 package com.payapp.uttrakhandtransportcorporation;
 
+import android.app.Activity;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +14,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.payapp.uttrakhandtransportcorporation.Model.Constants;
 import com.payu.india.Model.PaymentParams;
@@ -27,13 +32,12 @@ import java.net.URL;
 
 public class ResultActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private String mTransactionStatus, mTransactionId, mAmount,m_status;
+    private String mTransactionStatus, mTransactionId, mAmount, m_status;
     private TextView mTransactionIdTextView, mTransactionStatusTextView, mTransactionStatusMessageTextView,
             mAmountTextView, mTransactionDetailedMessageTextView;
     private ImageView mResultImageView;
     private LinearLayout mLinearLayoutTransactionDetails;
     private Button mBtnDoAnotherTransaction;
-
 
 
     @Override
@@ -64,10 +68,10 @@ public class ResultActivity extends AppCompatActivity implements View.OnClickLis
                 mTransactionId = jsonObject.getString("txnid");
                 mAmount = jsonObject.getString("amount");
                 //name=jsonObject.getString("fname");
-                if(mTransactionStatus.equals("success")){
-                    m_status="succeeded.";
-                }else {
-                    m_status="failed.";
+                if (mTransactionStatus.equals("success")) {
+                    m_status = "succeeded.";
+                } else {
+                    m_status = "failed.";
                 }
 
 
@@ -111,68 +115,73 @@ public class ResultActivity extends AppCompatActivity implements View.OnClickLis
     }
 
 
-        //** Send _Sms Api Call After completing success transaction.
+    //** Send _Sms Api Call After completing success transaction.
 
-       private void send_sms() {
-
+    private void send_sms() {
+        if (isNetworkAvailable(this)) {
       /*  final String postParams = "var1=" + Constants.d_number  +  "&command=send_sms" + "&hash=" + Constants.sms_Hash +
                 "&var2=Dear customer, BankName is working fine now. You may now visit MerchantWebsiteURL to complete your order. Team PayU." +
                 "&var3=PAYUIB" + "&key=gtKFFx";*/
 
-           final String postParams = "var1=" + Constants.d_number  +  "&command=send_sms" + "&hash=" + Constants.sms_Hash +
-                   "&var2=" + "Transaction No. " + mTransactionId + " for Rs " + mAmount + " done for " + "UTC" +  " has " + m_status
-                  + "&var3=PAYUIB" + "&key=gtKFFx";
+            final String postParams = "var1=" + Constants.d_number + "&command=send_sms" + "&hash=" + Constants.sms_Hash +
+                    "&var2=" + "Transaction No. " + mTransactionId + " for Rs " + mAmount + " done for " + "UTC" + " has " + m_status
+                    + "&var3=PAYUIB" + "&key=gtKFFx";
 
-        new AsyncTask<Void, Void, Void>() {
+            new AsyncTask<Void, Void, Void>() {
 
-            @Override
-            protected Void doInBackground(Void... params) {
-                try {
-                    //  https://mobiledev.payu.in/admin/wis.php?action=add&uid=124&mid=457&token=74588&cvvhash=0123456789031
+                @Override
+                protected Void doInBackground(Void... params) {
+                    try {
+                        //  https://mobiledev.payu.in/admin/wis.php?action=add&uid=124&mid=457&token=74588&cvvhash=0123456789031
 
-                    URL url = new URL("https://test.payu.in/merchant/postservice?");
+                        URL url = new URL("https://test.payu.in/merchant/postservice?");
 
-                    byte[] postParamsByte = postParams.getBytes("UTF-8");
+                        byte[] postParamsByte = postParams.getBytes("UTF-8");
 
-                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                    conn.setRequestMethod("POST");
-                    conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-                    conn.setRequestProperty("Content-Length", String.valueOf(postParamsByte.length));
-                    conn.setDoOutput(true);
-                    conn.getOutputStream().write(postParamsByte);
+                        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                        conn.setRequestMethod("POST");
+                        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                        conn.setRequestProperty("Content-Length", String.valueOf(postParamsByte.length));
+                        conn.setDoOutput(true);
+                        conn.getOutputStream().write(postParamsByte);
 
-                    InputStream responseInputStream = conn.getInputStream();
-                    StringBuffer responseStringBuffer = new StringBuffer();
-                    byte[] byteContainer = new byte[1024];
-                    for (int i; (i = responseInputStream.read(byteContainer)) != -1; ) {
-                        responseStringBuffer.append(new String(byteContainer, 0, i));
+                        InputStream responseInputStream = conn.getInputStream();
+                        StringBuffer responseStringBuffer = new StringBuffer();
+                        byte[] byteContainer = new byte[1024];
+                        for (int i; (i = responseInputStream.read(byteContainer)) != -1; ) {
+                            responseStringBuffer.append(new String(byteContainer, 0, i));
+                        }
+
+                        JSONObject response = new JSONObject(responseStringBuffer.toString());
+
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    } catch (MalformedURLException e) {
+                        e.printStackTrace();
+                    } catch (ProtocolException e) {
+                        e.printStackTrace();
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-
-                   JSONObject response = new JSONObject(responseStringBuffer.toString());
-
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                } catch (ProtocolException e) {
-                    e.printStackTrace();
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    return null;
                 }
-                return null;
-            }
 
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                super.onPostExecute(aVoid);
-                this.cancel(true);
-            }
-        }.execute();
+                @Override
+                protected void onPostExecute(Void aVoid) {
+                    super.onPostExecute(aVoid);
+                    this.cancel(true);
+                }
+            }.execute();
+        } else {
+            Toast.makeText(ResultActivity.this, getString(R.string.toast_no_internet_connection), Toast.LENGTH_SHORT).show();
+        }
+    }
 
-
-
+    public static boolean isNetworkAvailable(Activity ctx) {
+        NetworkInfo activeNetworkInfo = ((ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 }

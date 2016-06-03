@@ -3,8 +3,13 @@ package com.payapp.uttrakhandtransportcorporation;
 import android.Manifest;
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -18,10 +23,14 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.util.Patterns;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.payapp.uttrakhandtransportcorporation.Model.Constants;
@@ -54,18 +63,19 @@ import java.util.regex.Pattern;
 
 public class FillDetailsActivity extends AppCompatActivity implements OneClickPaymentListener {
 
-    private TextInputLayout mInputLayoutEmail, mInputLayoutYourMobile, mInputLayoutDriverMobile, mInputLayoutAmount;
-    private EditText mEditTextEmail, mEditTextYourMobile, mEditTextDriverMobile, mEditTextAmount;
+    private TextInputLayout mInputLayoutEmail, mInputLayoutName, mInputLayoutYourMobile, mInputLayoutDriverMobile, mInputLayoutAmount;
+    private EditText mEditTextEmail, mEditTextName, mEditTextYourMobile, mEditTextDriverMobile, mEditTextAmount;
     private Button mBtnPayNow;
     private PaymentParams mPaymentParams;
     private PayuConfig payuConfig;
     private PayUChecksum checksum;
     private PostData postData;
-    private String TxnId = "" + System.currentTimeMillis();
+    private String TxnId ;
     private Intent intent;
     private String var1;
     private String TAG = "FillDetailsActivity";
     private String send_sms_hash;
+    private ProgressDialog mProgressDialog;
 
     private final int MY_PERMISSIONS_REQUEST_GET_ACCOUNTS = 123;
 
@@ -73,6 +83,8 @@ public class FillDetailsActivity extends AppCompatActivity implements OneClickPa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fill_details);
+
+        setupUI(findViewById(R.id.linear_layout_fill_details));
 
         //This callback is set for using the One Tap Payment feature
         OnetapCallback.setOneTapCallback(this);
@@ -82,22 +94,28 @@ public class FillDetailsActivity extends AppCompatActivity implements OneClickPa
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mInputLayoutEmail = (TextInputLayout) findViewById(R.id.input_layout_email);
         mInputLayoutYourMobile = (TextInputLayout) findViewById(R.id.input_layout_your_mobile);
         mInputLayoutDriverMobile = (TextInputLayout) findViewById(R.id.input_layout_driver_mobile);
         mInputLayoutAmount = (TextInputLayout) findViewById(R.id.input_layout_amount);
+        mInputLayoutName = (TextInputLayout) findViewById(R.id.input_layout_name);
         mEditTextEmail = (EditText) findViewById(R.id.edittext_email);
         mEditTextYourMobile = (EditText) findViewById(R.id.edittext_your_mobile);
         mEditTextDriverMobile = (EditText) findViewById(R.id.edittext_driver_mobile);
         mEditTextAmount = (EditText) findViewById(R.id.edittext_amount);
+        mEditTextName = (EditText) findViewById(R.id.edittext_name);
         mBtnPayNow = (Button) findViewById(R.id.btn_pay_now);
         mBtnPayNow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (validInformation())
-                    preparePaymentFlow();
+                if (isNetworkAvailable(FillDetailsActivity.this)) {
+                    if (validInformation()) {
+                        preparePaymentFlow();
+                    }
+                } else {
+                    Toast.makeText(FillDetailsActivity.this, getString(R.string.toast_no_internet_connection), Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -105,6 +123,7 @@ public class FillDetailsActivity extends AppCompatActivity implements OneClickPa
         mEditTextYourMobile.addTextChangedListener(new MyTextWatcher(mEditTextYourMobile));
         mEditTextDriverMobile.addTextChangedListener(new MyTextWatcher(mEditTextDriverMobile));
         mEditTextAmount.addTextChangedListener(new MyTextWatcher(mEditTextAmount));
+        mEditTextName.addTextChangedListener(new MyTextWatcher(mEditTextName));
 
         // Here, this is the current activity
         if (ContextCompat.checkSelfPermission(this,
@@ -135,6 +154,22 @@ public class FillDetailsActivity extends AppCompatActivity implements OneClickPa
             //sets the primary email
             mEditTextEmail.setText(getPrimaryEmailAddress());
         }
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        mEditTextAmount.setText("");
+        mEditTextName.setText("");
+        mEditTextEmail.setText("");
+        mEditTextYourMobile.setText("");
+        mEditTextDriverMobile.setText("");
+        mInputLayoutEmail.setErrorEnabled(false);
+        mInputLayoutEmail.setError(null);
+        mInputLayoutYourMobile.setErrorEnabled(false);
+        mInputLayoutYourMobile.setError(null);
+        mInputLayoutDriverMobile.setErrorEnabled(false);
+        mInputLayoutDriverMobile.setError(null);
     }
 
     /**
@@ -183,6 +218,8 @@ public class FillDetailsActivity extends AppCompatActivity implements OneClickPa
                 case R.id.edittext_amount:
                     validateAmount();
                     break;
+                case R.id.edittext_name:
+
                 default:
                     break;
             }
@@ -195,6 +232,28 @@ public class FillDetailsActivity extends AppCompatActivity implements OneClickPa
      * @return a boolean value, true if email is valid else false.
      */
     private boolean validateEmail() {
+        String email = mEditTextEmail.getText().toString().trim();
+
+        if (email.isEmpty() || !isValidEmail(email)) {
+            mInputLayoutEmail.setError(getString(R.string.error_valid_email));
+            requestFocus(mEditTextEmail);
+            return false;
+        } else {
+            //mInputLayoutEmail.setError(null);
+            mInputLayoutEmail.setErrorEnabled(false);
+            mInputLayoutEmail.setError(null);
+        }
+
+        return true;
+    }
+
+
+    /**
+     * This function validates name.
+     *
+     * @return a boolean value, true if name is valid else false.
+     */
+    private boolean validateName() {
         String email = mEditTextEmail.getText().toString().trim();
 
         if (email.isEmpty() || !isValidEmail(email)) {
@@ -230,12 +289,31 @@ public class FillDetailsActivity extends AppCompatActivity implements OneClickPa
     }
 
     /**
+     * This function checks if an name is valid by matching it with a regex pattern.
+     *
+     * @return a boolean value, true if name is valid else false.
+     */
+    private static boolean isValidName(String name) {
+        String regexStr = "^[A-Z]$";
+
+        if (name.matches(regexStr) == false) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * This function checks if an email is valid by matching its pattern from android.util package.
      *
      * @return a boolean value, true if email is valid else false.
      */
     private static boolean isValidEmail(String email) {
-        return !TextUtils.isEmpty(email) && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+/*        if (email.contains("@gmail.com") || email.contains("@yahoo.com") || email.contains("@rediff.com") ||
+                email.contains("@hotmail.com")||email.contains("@ymail.com")) {
+            return true;
+        }
+        return false;*/
+        return !TextUtils.isEmpty(email) && Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
     /**
@@ -244,20 +322,26 @@ public class FillDetailsActivity extends AppCompatActivity implements OneClickPa
      * @return a boolean value, true if phone number is valid else false.
      */
     private static boolean isValidPhone(String phoneNumber) {
-        String regexStr = "^{6,9}+[0-9]{10,13}$";
+        // String regexStr = "^[7,8,9]+[0-9]{10,13}$";
+        String firstLetter = "";
+        firstLetter = String.valueOf(phoneNumber.charAt(0));
 
-        if (phoneNumber.matches(regexStr) == false) {
+/*        if (phoneNumber.matches(regexStr) == false) {
             return false;
+        }*/
+
+        if (firstLetter.equals("7") || firstLetter.equals("8") || firstLetter.equals("9")) {
+            return true;
         }
-        return true;
+        return false;
     }
 
     /**
      * This function validates the amount
      */
     public boolean validateAmount() {
-        if(!(mEditTextAmount.getText().toString().equals(""))) {
-            int amount = Integer.parseInt(mEditTextAmount.getText().toString());
+        if (!(mEditTextAmount.getText().toString().equals(""))) {
+            float amount = Float.parseFloat(mEditTextAmount.getText().toString());
             if (mEditTextAmount.getText().toString().isEmpty() || amount < 0) {
                 mInputLayoutAmount.setError(getString(R.string.error_valid_email));
                 requestFocus(mEditTextAmount);
@@ -267,8 +351,7 @@ public class FillDetailsActivity extends AppCompatActivity implements OneClickPa
                 mInputLayoutAmount.setError(null);
             }
             return true;
-        }
-        else
+        } else
             return false;
     }
 
@@ -276,6 +359,14 @@ public class FillDetailsActivity extends AppCompatActivity implements OneClickPa
      * This function validate the filled data before processing for Payment
      */
     private boolean validInformation() {
+        if (mEditTextAmount.getText().toString().isEmpty()) {
+            Toast.makeText(FillDetailsActivity.this, getString(R.string.toast_amount_cannot_be_empty), Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (isValidName(mEditTextName.getText().toString())) {
+            Toast.makeText(FillDetailsActivity.this, getString(R.string.toast_invalid_name), Toast.LENGTH_SHORT).show();
+            return false;
+        }
         if (!validateEmail()) {
             Toast.makeText(FillDetailsActivity.this, getString(R.string.toast_invalid_email_address), Toast.LENGTH_SHORT).show();
             return false;
@@ -294,10 +385,7 @@ public class FillDetailsActivity extends AppCompatActivity implements OneClickPa
             Toast.makeText(FillDetailsActivity.this, getString(R.string.toast_both_numbers_cannot_be_same), Toast.LENGTH_SHORT).show();
             return false;
         }
-        if (mEditTextAmount.getText().toString().isEmpty()) {
-            Toast.makeText(FillDetailsActivity.this, getString(R.string.toast_amount_cannot_be_empty), Toast.LENGTH_SHORT).show();
-            return false;
-        }
+
         return true;
     }
 
@@ -312,6 +400,13 @@ public class FillDetailsActivity extends AppCompatActivity implements OneClickPa
     * */
     public void preparePaymentFlow() {
 
+        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setMessage("Loading...");
+        mProgressDialog.setCancelable(false);
+        mProgressDialog.show();
+
+        mBtnPayNow.setEnabled(false);
+
         //Initialse the intent
         intent = new Intent(this, PayUBaseActivity.class);
 
@@ -320,10 +415,12 @@ public class FillDetailsActivity extends AppCompatActivity implements OneClickPa
         String customerEmail = mEditTextEmail.getText().toString();
         String yourMobile = mEditTextYourMobile.getText().toString();
         String driverMobile = mEditTextDriverMobile.getText().toString();
-        Constants.d_number=driverMobile;
+        TxnId = "" + System.currentTimeMillis();
+        Constants.d_number = driverMobile;
 
         //userCredentials to use store card feature
-        String userCredentials = Constants.MERCHANT_KEY + ":" + yourMobile;
+        //String userCredentials = Constants.MERCHANT_KEY + ":" + yourMobile;
+        String userCredentials = "default";
         var1 = userCredentials;
 
         //Initialize Payment Params and PayuConfig
@@ -408,7 +505,7 @@ public class FillDetailsActivity extends AppCompatActivity implements OneClickPa
             PayuHashes payuHashes = new PayuHashes();
             try {
 
-                URL url = new URL("");
+                URL url = new URL("http://utc.payu.in/utc_hashgeneration.php");
 
                 // get the payuConfig first
                 String postParam = postParams[0];
@@ -466,7 +563,7 @@ public class FillDetailsActivity extends AppCompatActivity implements OneClickPa
                             payuHashes.setCheckIsDomesticHash(response.getString(key));
                             break;
                         case "send_sms_hash":
-                            Constants.sms_Hash=response.getString("send_sms_hash");
+                            Constants.sms_Hash = response.getString("send_sms_hash");
 
                             break;
                         default:
@@ -499,6 +596,8 @@ public class FillDetailsActivity extends AppCompatActivity implements OneClickPa
      * @param payuHashes
      */
     public void launchSdkUI(PayuHashes payuHashes) {
+        mBtnPayNow.setEnabled(true);
+        mProgressDialog.dismiss();
 
         intent.putExtra(PayuConstants.PAYU_CONFIG, payuConfig);
         intent.putExtra(PayuConstants.PAYMENT_PARAMS, mPaymentParams);
@@ -973,6 +1072,43 @@ public class FillDetailsActivity extends AppCompatActivity implements OneClickPa
                 Toast.makeText(this, "Could not receive data", Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+    public static void hideSoftKeyboard(Activity activity) {
+        InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
+    }
+
+    public void setupUI(View view) {
+
+        //Set up touch listener for non-text box views to hide keyboard.
+        if (!(view instanceof EditText)) {
+
+            view.setOnTouchListener(new View.OnTouchListener() {
+
+                public boolean onTouch(View v, MotionEvent event) {
+                    hideSoftKeyboard(FillDetailsActivity.this);
+                    return false;
+                }
+
+            });
+        }
+
+        //If a layout container, iterate over children and seed recursion.
+        if (view instanceof ViewGroup) {
+
+            for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
+
+                View innerView = ((ViewGroup) view).getChildAt(i);
+
+                setupUI(innerView);
+            }
+        }
+    }
+
+    public static boolean isNetworkAvailable(Activity ctx) {
+        NetworkInfo activeNetworkInfo = ((ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 }
 

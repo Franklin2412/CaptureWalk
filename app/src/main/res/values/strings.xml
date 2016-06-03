@@ -1,8 +1,9 @@
 <resources>
-    <string name="app_name">UttrakhandTransportCorporation</string>
+    <string name="app_name">UttarakhandTransportCorporation</string>
     <string name="action_settings">Settings</string>
     <string name="enter_details">Please Enter Below Details</string>
     <string name="pay_now">Pay Now</string>
+    <string name="proceed">Proceed</string>
     <string name="transaction_dropped">Transaction Dropped</string>
     <string name="transaction_successful">Transaction Successful</string>
     <string name="transaction_falied">Transaction Failed</string>
@@ -14,9 +15,10 @@
 
     <!-- Hints -->
     <string name="hint_email">Enter your email address</string>
-    <string name="hint_your_mobile">Enter your 10 digit mobile number</string>
-    <string name="hint_driver_mobile">Enter 10 digit driver\'s mobile number</string>
+    <string name="hint_your_mobile">Enter your mobile number</string>
+    <string name="hint_driver_mobile">Enter conductor\'s mobile number</string>
     <string name="hint_amount">Enter amount to be paid</string>
+    <string name="hint_name">Enter your name</string>
     <string name="title_activity_demo">DemoActivity</string>
 
     <!-- Error Messages-->
@@ -31,9 +33,10 @@
     <string name="toast_invalid_your_mobile_number">Please enter your valid mobile number</string>
     <string name="toast_invalid_driver_mobile_number">Please enter driver\'s valid mobile number</string>
     <string name="toast_invalid_email_address">Please enter a valid email address</string>
+    <string name="toast_invalid_name">Please enter a valid name</string>
     <string name="toast_both_numbers_cannot_be_same">Both mobile numbers cannot be same. Please enter different numbers</string>
     <string name="toast_amount_cannot_be_empty">Amount cannot be empty. Please enter a valid amount</string>
-
+    <string name="toast_no_internet_connection">No Internet Connection. Please try again later.</string>
     <!-- Result Activity-->
     <string name="result_transaction_id">Transaction Id</string>
     <string name="result_amount">Amount</string>

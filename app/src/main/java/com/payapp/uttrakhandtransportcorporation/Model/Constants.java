@@ -5,10 +5,11 @@ import com.payu.india.Payu.PayuConstants;
 /**
  * Created by rahul.hooda on 5/2/16.
  */
+
 public class Constants {
 
-    public static String SURL = "https://payu.herokuapp.com/success";
-    public static String FURL = "https://payu.herokuapp.com/failure";
+    public static String SURL = "http://utc.payu.in/utc_response.php";
+    public static String FURL = "http://utc.payu.in/utc_response.php";
     public static int ENV = PayuConstants.MOBILE_STAGING_ENV;
     public static String MERCHANT_KEY = "gtKFFx";
     public static String SALT = "eCwWELxi";
